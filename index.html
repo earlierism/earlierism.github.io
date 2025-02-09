@@ -1,51 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
+    <title>Building...</title>
+    <meta description="Elias Rimer explores the intersection of cyberpunk futurism and digital consciousness through modernist design and technical illustration. A San Francisco-based meditation on posthuman evolution. earlierism.com"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centered Image Page</title>
+    <link href="https://fastly-cloud.typenetwork.com/projects/8502/fontface.css?67a0179a" rel="stylesheet" type="text/css">
     <style>
-        /* Reset margins and padding */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Full-screen container */
-        body, html {
-            width: 100%;
-            height: 100%;
+        body {
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f0f0; /* Light background color */
+            flex-direction: column;
         }
 
-        /* Container for centering */
         .container {
-            width: 1920px;
-            height: 1080px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: white;
-            position: relative;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
         }
 
-        /* Image styling */
-        .centered-image {
-            width: 1051px;
-            height: 590px;
-            object-fit: contain; /* Ensures the aspect ratio is maintained */
+        .logo {
+            font-family: "Bitcount Mono Double Circle";
+            font-display: swap;
+            font-style: normal;
+            font-weight: normal;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15vh;
+        }
+
+        .main-image {
+            margin-top: vh;
+            max-width: 100%;
+            height: auto;
+            width: auto;
+            max-height: 55vh;
+        }
+
+        /* Desktop layout */
+        @media (min-width: 769px) {
+            .logo {
+                text-align: left;
+                margin-top: 0.5rem;
+                margin-left: 1rem;
+            }
+        }
+
+        /* Mobile layout */
+        @media (max-width: 768px) {
+            .container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .content {
+                order: 1;
+            }
+            
+            .logo {
+                order: 2;
+                text-align: center;
+                margin-top: 2rem;
+                margin-bottom: 0;
+            }
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <img class="centered-image" src="/assets/drawingatm.png" alt="Centered Image">
+        <div class="logo">earlierism</div>
+        <div class="content">
+            <img 
+                srcset="
+                    assets/pictures/landingPage/landingComic-400.png 400w,
+                    assets/pictures/landingPage/landingComic-800.png 800w,
+                    assets/pictures/landingPage/landingComic-1200.png 1200w,
+                    assets/pictures/landingPage/landingComic-1600.png 1600w
+                "
+                sizes="(max-width: 768px) 100vw, 800px"
+                src="assets/pictures/landingPage/landingComic-800.png"
+                alt="Comic strip showing an interaction between Elias Rimer and Elias Rimer, breaking the fourth wall."
+                class="main-image"
+                loading="eager"
+            >
+        </div>
     </div>
-
 </body>
 </html>
