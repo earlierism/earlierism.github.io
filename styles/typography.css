@@ -1,0 +1,43 @@
+.site-logo {
+    font-family: "Bitcount Mono Double Circle";
+    font-display: swap;
+    font-style: normal;
+    font-weight: normal;
+    font-size: calc(var(--hg) * 0.2);
+    margin-left: var(--vg);
+}
+
+/* Landing page navigation */
+.landing-nav {
+    width: var(--third-vg);
+    height: var(--hg);
+    margin: 0 auto;
+    position: relative;
+}
+
+.nav-item {
+    position: absolute;
+    width: calc(var(--vg) * 3);
+    height: calc(var(--hg) * 0.2);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    font-size: calc(var(--hg) * 0.15);
+    text-align: center;
+    bottom: calc(var(--hg) * 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.nav-item:nth-child(1) {
+    left: var(--vg);
+}
+
+.nav-item:nth-child(2) {
+    left: calc(var(--vg) * 6);
+}
+
+.nav-item:nth-child(3) {
+    left: calc(var(--vg) * 11);
+}

@@ -1,0 +1,25 @@
+{
+  "photos": [
+    {
+      "filename": "sample-1.jpg",
+      "title": "Sample Photo One",
+      "collection": "digital art",
+      "date": "2024-12-15",
+      "featured": true
+    },
+    {
+      "filename": "sample-2.jpg", 
+      "title": "Sample Photo Two",
+      "collection": "sketches",
+      "date": "2024-12-10",
+      "featured": false
+    },
+    {
+      "filename": "sample-3.jpg",
+      "title": "Sample Photo Three", 
+      "collection": "digital art",
+      "date": "2024-12-20",
+      "featured": true
+    }
+  ]
+}

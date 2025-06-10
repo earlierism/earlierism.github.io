@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Building...</title>
+    <meta description="Elias Rimer explores the intersection of cyberpunk futurism and digital consciousness through modernist design and technical illustration. A San Francisco-based meditation on posthuman evolution. earlierism.com"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fastly-cloud.typenetwork.com/projects/8502/fontface.css?67a0179a" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../styles/grid-system.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/typography.css">
+    <style>
+        /* Landing page layout */
+        .landing-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Navigation fade-in animation */
+        .landing-nav {
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out 3s forwards;
+            transition: all 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Nav item states */
+        .nav-item {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .nav-item.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Content sections */
+        .content-section {
+            position: absolute;
+            top: 100vh;
+            left: 0;
+            width: 100vw;
+            min-height: 100vh;
+            background: white;
+            transform: translateY(0);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .content-section.active {
+            transform: translateY(calc(-100vh + var(--hg)));
+        }
+
+        /* Page states */
+        .page-scrolled-up {
+            transform: translateY(calc(-6 * var(--hg)));
+        }
+
+        /* Header reveal */
+        .header-reveal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            background: white;
+            opacity: 0;
+            transform: translateY(-100%);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .header-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Placeholder borders for visualization */
+        .image-container {
+            border: 2px dashed #cccccc;
+            background-color: #f9f9f9;
+        }
+
+        .landing-container .image-container {
+            border-color: #999999;
+            background-color: #f0f0f0;
+        }
+
+        .content-section .image-container {
+            border-color: #666666;
+            background-color: #e8e8e8;
+        }
+
+        .content-section .image-container::before {
+            content: attr(data-section) " content area";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666666;
+            font-size: calc(var(--hg) * 0.1);
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-container">
+        <header class="webpage-header">
+            <div class="site-logo">earlierism</div>
+        </header>
+        
+        <div class="image-container centered gap-half">
+            <div style="color: #999; font-size: calc(var(--hg) * 0.1); text-align: center;">landing page image</div>
+        </div>
+        
+        <div class="landing-nav">
+            <div class="nav-item" data-section="photos">photos!</div>
+            <div class="nav-item" data-section="texts">texts!</div>
+            <div class="nav-item" data-section="other">other stuff!</div>
+        </div>
+    </div>
+
+    <!-- Fixed header for scroll reveal -->
+    <header class="webpage-header header-reveal">
+        <div class="site-logo">earlierism</div>
+    </header>
+
+    <!-- Content sections will be dynamically created -->
+
+    <script>
+        let currentSection = null;
+        let isScrolledUp = false;
+        let scrollListenersActive = false;
+        
+        // Store references to event handlers for proper cleanup
+        let touchStartHandler, touchMoveHandler, wheelHandler;
+
+        // Navigation click handlers
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const section = e.target.dataset.section;
+                activateSection(section);
+            });
+        });
+
+        function activateSection(sectionName) {
+            currentSection = sectionName;
+            
+            // Hide other nav items (keep the clicked one visible)
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.section !== sectionName) {
+                    item.classList.add('hidden');
+                } else {
+                    item.classList.remove('hidden');
+                }
+            });
+
+            // Create and show content section
+            createContentSection(sectionName);
+
+            // Scroll page up 6hg
+            const container = document.querySelector('.landing-container');
+            container.classList.add('page-scrolled-up');
+
+            // Enable scroll detection
+            setTimeout(() => {
+                enableScrollDetection();
+            }, 800); // After transition completes
+        }
+
+        function createContentSection(sectionName) {
+            // Remove any existing content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.remove();
+            });
+
+            // Create new content section
+            const contentSection = document.createElement('div');
+            contentSection.className = 'content-section';
+            contentSection.id = `${sectionName}-content`;
+            
+            contentSection.innerHTML = `
+                <div class="image-container" data-section="${sectionName}">
+                    <!-- Placeholder ${sectionName} content -->
+                </div>
+                <div class="spacing-section"></div>
+            `;
+
+            // Add to page
+            document.body.appendChild(contentSection);
+
+            // Trigger animation
+            setTimeout(() => {
+                contentSection.classList.add('active');
+            }, 50);
+        }
+
+        function enableScrollDetection() {
+            if (scrollListenersActive) return; // Prevent duplicate listeners
+            
+            let startY = 0;
+            let currentY = 0;
+            // Calculate thresholds as percentages of viewport height to stay responsive
+            const hgInPixels = window.innerHeight / 7; // 1hg in pixels
+            const scrollThreshold1 = hgInPixels * 0.7;  // ~0.7hg for header reveal
+            const scrollThreshold2 = hgInPixels * 1.2;  // ~1.2hg for homepage reset
+
+            touchStartHandler = (e) => {
+                startY = e.touches[0].clientY;
+            };
+
+            touchMoveHandler = (e) => {
+                e.preventDefault(); // Prevent default scrolling
+                currentY = e.touches[0].clientY;
+                const deltaY = startY - currentY;
+
+                // If scrolling up enough, trigger header reveal
+                if (deltaY < -scrollThreshold1 && !isScrolledUp) {
+                    showHeader();
+                }
+
+                // If scrolling up more, snap back to homepage
+                if (deltaY < -scrollThreshold2) {
+                    resetToHomepage();
+                }
+            };
+
+            wheelHandler = (e) => {
+                e.preventDefault(); // Prevent default scrolling
+                
+                if (e.deltaY < -scrollThreshold1 && !isScrolledUp) {
+                    showHeader();
+                } else if (e.deltaY < -scrollThreshold2) {
+                    resetToHomepage();
+                }
+            };
+
+            document.addEventListener('touchstart', touchStartHandler);
+            document.addEventListener('touchmove', touchMoveHandler, { passive: false });
+            document.addEventListener('wheel', wheelHandler, { passive: false });
+            
+            scrollListenersActive = true;
+        }
+
+        function showHeader() {
+            isScrolledUp = true;
+            const headerReveal = document.querySelector('.header-reveal');
+            headerReveal.classList.add('visible');
+        }
+
+        function resetToHomepage() {
+            currentSection = null;
+            isScrolledUp = false;
+
+            // Properly remove scroll event listeners
+            if (scrollListenersActive) {
+                document.removeEventListener('touchstart', touchStartHandler);
+                document.removeEventListener('touchmove', touchMoveHandler);
+                document.removeEventListener('wheel', wheelHandler);
+                scrollListenersActive = false;
+            }
+
+            // Hide header
+            const headerReveal = document.querySelector('.header-reveal');
+            headerReveal.classList.remove('visible');
+
+            // Show all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('hidden');
+            });
+
+            // Remove content sections completely
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.remove();
+            });
+
+            // Reset page position
+            const container = document.querySelector('.landing-container');
+            container.classList.remove('page-scrolled-up');
+        }
+    </script>
+</body>
+</html>

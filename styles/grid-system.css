@@ -1,0 +1,23 @@
+:root {
+    /* Grid system units */
+    --hg: calc(100vh / 7);              /* horizontal grid unit = 1/7vh */
+    --vg: calc(100vw / 45);             /* vertical grid unit = 1/45vw */
+    --third-vg: calc(var(--vg) * 15);  /* one third of viewport = 15vg */
+    
+    /* Interaction thresholds */
+    --scroll-threshold-header: var(--hg);              /* 1hg to trigger header reveal */
+    --scroll-threshold-reset: calc(var(--hg) * 1.5);   /* Additional 0.5hg to trigger reset */
+}
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+}

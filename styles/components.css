@@ -1,0 +1,49 @@
+/* Reusable component classes */
+.spacing-section {
+    width: 100vw;
+    height: var(--hg);
+}
+
+.text-section {
+    width: var(--third-vg);
+    height: var(--hg);
+}
+
+.image-container {
+    width: var(--third-vg);
+    height: calc(var(--hg) * 5);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Image container with 1vg margins */
+.image-container img {
+    max-width: calc(100% - var(--vg) * 2);
+    max-height: calc(100% - var(--vg) * 2);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.webpage-header {
+    width: 100vw;
+    height: calc(var(--hg) * 0.5);
+    display: flex;
+    align-items: center;
+}
+
+.webpage-footer {
+    width: 100vw;
+    height: var(--hg);
+}
+
+/* Utility classes */
+.centered {
+    margin: 0 auto;
+}
+
+.gap-half {
+    margin-top: calc(var(--hg) * 0.5);
+}
