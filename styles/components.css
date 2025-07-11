@@ -27,6 +27,22 @@
     object-fit: contain;
 }
 
+.homepage-video {
+    width: calc(var(--vg) * 35);
+    height: calc(var(--hg) * 5);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Video container with 1vg margins */
+.homepage-video video {
+    width: calc(var(--vg) * 33);
+    height: auto;
+    object-fit: contain;
+}
+
 .webpage-header {
     width: 100vw;
     height: calc(var(--hg) * 0.5);
