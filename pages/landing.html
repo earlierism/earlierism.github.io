@@ -97,21 +97,18 @@
             background-color: #f0f0f0;
         }
 
+        /* Homepage video positioning */
+        .landing-container .homepage-video {
+            margin-left: calc(var(--vg) * 5);
+        }
+
         .content-section .image-container {
-            border-color: #666666;
-            background-color: #e8e8e8;
+            border: none;
+            background: none;
         }
 
         .content-section .image-container::before {
-            content: attr(data-section) " content area";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #666666;
-            font-size: calc(var(--hg) * 0.1);
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            text-align: center;
+            display: none;
         }
     </style>
 </head>
@@ -121,8 +118,13 @@
             <div class="site-logo">earlierism</div>
         </header>
         
-        <div class="image-container centered gap-half">
-            <div style="color: #999; font-size: calc(var(--hg) * 0.1); text-align: center;">landing page image</div>
+        <div class="gap-half"></div>
+        
+        <div class="homepage-video">
+            <video autoplay muted loop>
+                <source src="../content/videos/1.MOV" type="video/quicktime">
+                <source src="../content/videos/1.MOV" type="video/mp4">
+            </video>
         </div>
         
         <div class="landing-nav">
@@ -143,9 +145,29 @@
         let currentSection = null;
         let isScrolledUp = false;
         let scrollListenersActive = false;
+        let photosData = null; // Store preloaded photos data
         
         // Store references to event handlers for proper cleanup
         let touchStartHandler, touchMoveHandler, wheelHandler;
+
+        // Preload photos data on page load
+        async function preloadPhotos() {
+            try {
+                const response = await fetch('../content/photos/manifest.json');
+                const manifest = await response.json();
+                
+                // Filter featured photos and sort by date descending
+                photosData = manifest.photos
+                    .filter(photo => photo.featured === true)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+            } catch (error) {
+                console.error('Error preloading photos:', error);
+                photosData = null;
+            }
+        }
+
+        // Initialize preloading when page loads
+        document.addEventListener('DOMContentLoaded', preloadPhotos);
 
         // Navigation click handlers
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -191,12 +213,43 @@
             contentSection.className = 'content-section';
             contentSection.id = `${sectionName}-content`;
             
-            contentSection.innerHTML = `
-                <div class="image-container" data-section="${sectionName}">
-                    <!-- Placeholder ${sectionName} content -->
-                </div>
-                <div class="spacing-section"></div>
-            `;
+            if (sectionName === 'photos') {
+                // Use preloaded photos data
+                if (photosData && photosData.length > 0) {
+                    // Start with first image directly
+                    let innerHTML = '';
+                    
+                    // Add each featured photo with spacer
+                    photosData.forEach(photo => {
+                        innerHTML += `
+                            <div class="image-container centered">
+                                <img src="../content/photos/${photo.filename}" alt="">
+                                <!-- TODO: Add photo metadata display - title: ${photo.title}, collection: ${photo.collection}, date: ${photo.date} -->
+                            </div>
+                            <div class="spacing-section"></div>
+                        `;
+                    });
+                    
+                    contentSection.innerHTML = innerHTML;
+                } else {
+                    // Fallback if photos data not available
+                    contentSection.innerHTML = `
+                        <div class="image-container" data-section="${sectionName}">
+                            <!-- Photos loading or unavailable -->
+                        </div>
+                        <div class="spacing-section"></div>
+                    `;
+                }
+            } else {
+                // Other sections use placeholder content
+                contentSection.innerHTML = `
+                    <div class="spacing-section">${sectionName}</div>
+                    <div class="image-container" data-section="${sectionName}">
+                        <!-- Placeholder ${sectionName} content -->
+                    </div>
+                    <div class="spacing-section"></div>
+                `;
+            }
 
             // Add to page
             document.body.appendChild(contentSection);
@@ -222,29 +275,34 @@
             };
 
             touchMoveHandler = (e) => {
-                e.preventDefault(); // Prevent default scrolling
                 currentY = e.touches[0].clientY;
                 const deltaY = startY - currentY;
 
-                // If scrolling up enough, trigger header reveal
-                if (deltaY < -scrollThreshold1 && !isScrolledUp) {
-                    showHeader();
+                // Only prevent default and trigger actions for significant upward scrolls
+                if (deltaY < -scrollThreshold1) {
+                    e.preventDefault();
+                    if (!isScrolledUp) {
+                        showHeader();
+                    }
+                    if (deltaY < -scrollThreshold2) {
+                        resetToHomepage();
+                    }
                 }
-
-                // If scrolling up more, snap back to homepage
-                if (deltaY < -scrollThreshold2) {
-                    resetToHomepage();
-                }
+                // Allow normal scrolling for other gestures
             };
 
             wheelHandler = (e) => {
-                e.preventDefault(); // Prevent default scrolling
-                
-                if (e.deltaY < -scrollThreshold1 && !isScrolledUp) {
-                    showHeader();
-                } else if (e.deltaY < -scrollThreshold2) {
-                    resetToHomepage();
+                // Only prevent default and trigger actions for significant upward scrolls
+                if (e.deltaY < -scrollThreshold1) {
+                    e.preventDefault();
+                    if (!isScrolledUp) {
+                        showHeader();
+                    }
+                    if (e.deltaY < -scrollThreshold2) {
+                        resetToHomepage();
+                    }
                 }
+                // Allow normal scrolling for other wheel events
             };
 
             document.addEventListener('touchstart', touchStartHandler);

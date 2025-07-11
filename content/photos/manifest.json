@@ -1,24 +1,52 @@
 {
   "photos": [
     {
-      "filename": "sample-1.jpg",
-      "title": "Sample Photo One",
-      "collection": "digital art",
-      "date": "2024-12-15",
+      "filename": "1.jpeg",
+      "title": "Downieville, CA",
+      "collection": null,
+      "date": "2024-09-17",
       "featured": true
     },
     {
-      "filename": "sample-2.jpg", 
-      "title": "Sample Photo Two",
-      "collection": "sketches",
-      "date": "2024-12-10",
-      "featured": false
+      "filename": "4.jpeg", 
+      "title": "Point Arena, CA",
+      "collection": "#treepictureclub",
+      "date": "2024-11-30",
+      "featured": true
     },
     {
-      "filename": "sample-3.jpg",
-      "title": "Sample Photo Three", 
-      "collection": "digital art",
-      "date": "2024-12-20",
+      "filename": "5.jpeg",
+      "title": "Ocean Beach, CA", 
+      "collection": "#treepictureclub",
+      "date": "2025-01-05",
+      "featured": true
+    },
+    {
+      "filename": "6.jpeg",
+      "title": "Mt. Tamalpais, CA", 
+      "collection": "#treepictureclub",
+      "date": "2025-03-08",
+      "featured": true
+    },
+    {
+      "filename": "8.jpeg",
+      "title": "Stornetta Point, CA", 
+      "collection": null,
+      "date": "2024-11-29",
+      "featured": true
+    },
+    {
+      "filename": "3.jpeg",
+      "title": "San Francisco, CA", 
+      "collection": null,
+      "date": "2024-11-24",
+      "featured": true
+    },
+    {
+      "filename": "7.jpeg",
+      "title": "Santa Monica, CA", 
+      "collection": "Things in abundance",
+      "date": "2025-04-26",
       "featured": true
     }
   ]
