@@ -69,30 +69,22 @@
             transform: translateY(calc(-6 * var(--hg)));
         }
 
-        /* Header reveal */
-        .header-reveal {
+        /* Sticky header (always visible) */
+        .webpage-header {
             position: fixed;
             top: 0;
             left: 0;
             z-index: 100;
             background: white;
-            opacity: 0;
-            transform: translateY(-100%);
-            transition: all 0.3s ease-in-out;
-        }
-
-        .header-reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
         }
 
         /* Placeholder borders for visualization */
-        .image-container {
+        .content-container {
             border: 2px dashed #cccccc;
             background-color: #f9f9f9;
         }
 
-        .landing-container .image-container {
+        .landing-container .content-container {
             border-color: #999999;
             background-color: #f0f0f0;
         }
@@ -102,12 +94,12 @@
             margin-left: calc(var(--vg) * 5);
         }
 
-        .content-section .image-container {
+        .content-section .content-container {
             border: none;
             background: none;
         }
 
-        .content-section .image-container::before {
+        .content-section .content-container::before {
             display: none;
         }
     </style>
@@ -134,28 +126,21 @@
         </div>
     </div>
 
-    <!-- Fixed header for scroll reveal -->
-    <header class="webpage-header header-reveal">
-        <div class="site-logo">earlierism</div>
-    </header>
-
     <!-- Content sections will be dynamically created -->
 
     <script>
         let currentSection = null;
-        let isScrolledUp = false;
-        let scrollListenersActive = false;
         let photosData = null; // Store preloaded photos data
-        
+
         // Store references to event handlers for proper cleanup
-        let touchStartHandler, touchMoveHandler, wheelHandler;
+        let touchStartHandler, touchMoveHandler;
 
         // Preload photos data on page load
         async function preloadPhotos() {
             try {
                 const response = await fetch('../content/photos/manifest.json');
                 const manifest = await response.json();
-                
+
                 // Filter featured photos and sort by date descending
                 photosData = manifest.photos
                     .filter(photo => photo.featured === true)
@@ -179,7 +164,7 @@
 
         function activateSection(sectionName) {
             currentSection = sectionName;
-            
+
             // Hide other nav items (keep the clicked one visible)
             document.querySelectorAll('.nav-item').forEach(item => {
                 if (item.dataset.section !== sectionName) {
@@ -196,7 +181,7 @@
             const container = document.querySelector('.landing-container');
             container.classList.add('page-scrolled-up');
 
-            // Enable scroll detection
+            // Enable scroll detection after transition
             setTimeout(() => {
                 enableScrollDetection();
             }, 800); // After transition completes
@@ -222,7 +207,7 @@
                     // Add each featured photo with spacer
                     photosData.forEach(photo => {
                         innerHTML += `
-                            <div class="image-container centered">
+                            <div class="content-container centered">
                                 <img src="../content/photos/${photo.filename}" alt="">
                                 <!-- TODO: Add photo metadata display - title: ${photo.title}, collection: ${photo.collection}, date: ${photo.date} -->
                             </div>
@@ -234,7 +219,7 @@
                 } else {
                     // Fallback if photos data not available
                     contentSection.innerHTML = `
-                        <div class="image-container" data-section="${sectionName}">
+                        <div class="content-container" data-section="${sectionName}">
                             <!-- Photos loading or unavailable -->
                         </div>
                         <div class="spacing-section"></div>
@@ -244,7 +229,7 @@
                 // Other sections use placeholder content
                 contentSection.innerHTML = `
                     <div class="spacing-section">${sectionName}</div>
-                    <div class="image-container" data-section="${sectionName}">
+                    <div class="content-container" data-section="${sectionName}">
                         <!-- Placeholder ${sectionName} content -->
                     </div>
                     <div class="spacing-section"></div>
@@ -261,78 +246,54 @@
         }
 
         function enableScrollDetection() {
-            if (scrollListenersActive) return; // Prevent duplicate listeners
-            
-            let startY = 0;
-            let currentY = 0;
-            // Calculate thresholds as percentages of viewport height to stay responsive
             const hgInPixels = window.innerHeight / 7; // 1hg in pixels
-            const scrollThreshold1 = hgInPixels * 0.7;  // ~0.7hg for header reveal
-            const scrollThreshold2 = hgInPixels * 1.2;  // ~1.2hg for homepage reset
+            const scrollThreshold = hgInPixels * 0.7;  // ~0.7hg scroll-up threshold
+            const contentSection = document.querySelector('.content-section');
+
+            if (!contentSection) return;
+
+            let startY = 0;
+            let isAtTop = false;
+
+            // Detect when user scrolls to top of content
+            contentSection.addEventListener('scroll', () => {
+                isAtTop = contentSection.scrollTop === 0;
+            });
 
             touchStartHandler = (e) => {
-                startY = e.touches[0].clientY;
+                // Only track gestures when at top of content
+                if (isAtTop) {
+                    startY = e.touches[0].clientY;
+                }
             };
 
             touchMoveHandler = (e) => {
-                currentY = e.touches[0].clientY;
+                if (!isAtTop) return; // Ignore if not at top
+
+                const currentY = e.touches[0].clientY;
                 const deltaY = startY - currentY;
 
-                // Only prevent default and trigger actions for significant upward scrolls
-                if (deltaY < -scrollThreshold1) {
+                // If scrolling up (negative deltaY) past threshold, return home
+                if (deltaY < -scrollThreshold) {
                     e.preventDefault();
-                    if (!isScrolledUp) {
-                        showHeader();
-                    }
-                    if (deltaY < -scrollThreshold2) {
-                        resetToHomepage();
-                    }
+                    resetToHomepage();
                 }
-                // Allow normal scrolling for other gestures
             };
 
-            wheelHandler = (e) => {
-                // Only prevent default and trigger actions for significant upward scrolls
-                if (e.deltaY < -scrollThreshold1) {
-                    e.preventDefault();
-                    if (!isScrolledUp) {
-                        showHeader();
-                    }
-                    if (e.deltaY < -scrollThreshold2) {
-                        resetToHomepage();
-                    }
-                }
-                // Allow normal scrolling for other wheel events
-            };
-
-            document.addEventListener('touchstart', touchStartHandler);
+            document.addEventListener('touchstart', touchStartHandler, { passive: true });
             document.addEventListener('touchmove', touchMoveHandler, { passive: false });
-            document.addEventListener('wheel', wheelHandler, { passive: false });
-            
-            scrollListenersActive = true;
-        }
-
-        function showHeader() {
-            isScrolledUp = true;
-            const headerReveal = document.querySelector('.header-reveal');
-            headerReveal.classList.add('visible');
         }
 
         function resetToHomepage() {
             currentSection = null;
-            isScrolledUp = false;
 
-            // Properly remove scroll event listeners
-            if (scrollListenersActive) {
+            // Remove scroll event listeners
+            if (touchStartHandler) {
                 document.removeEventListener('touchstart', touchStartHandler);
                 document.removeEventListener('touchmove', touchMoveHandler);
-                document.removeEventListener('wheel', wheelHandler);
-                scrollListenersActive = false;
+                touchStartHandler = null;
+                touchMoveHandler = null;
             }
-
-            // Hide header
-            const headerReveal = document.querySelector('.header-reveal');
-            headerReveal.classList.remove('visible');
 
             // Show all nav items
             document.querySelectorAll('.nav-item').forEach(item => {
@@ -344,7 +305,7 @@
                 section.remove();
             });
 
-            // Reset page position
+            // Reset page position (slide back down)
             const container = document.querySelector('.landing-container');
             container.classList.remove('page-scrolled-up');
         }

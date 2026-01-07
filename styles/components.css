@@ -4,12 +4,7 @@
     height: var(--hg);
 }
 
-.text-section {
-    width: var(--third-vg);
-    height: var(--hg);
-}
-
-.image-container {
+.content-container {
     width: var(--third-vg);
     height: calc(var(--hg) * 5);
     position: relative;
@@ -18,8 +13,8 @@
     justify-content: center;
 }
 
-/* Image container with 1vg margins */
-.image-container img {
+/* Content container with 1vg margins */
+.content-container img {
     max-width: calc(100% - var(--vg) * 2);
     max-height: calc(100% - var(--vg) * 2);
     width: auto;

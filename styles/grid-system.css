@@ -3,10 +3,9 @@
     --hg: calc(100vh / 7);              /* horizontal grid unit = 1/7vh */
     --vg: calc(100vw / 45);             /* vertical grid unit = 1/45vw */
     --third-vg: calc(var(--vg) * 15);  /* one third of viewport = 15vg */
-    
+
     /* Interaction thresholds */
-    --scroll-threshold-header: var(--hg);              /* 1hg to trigger header reveal */
-    --scroll-threshold-reset: calc(var(--hg) * 1.5);   /* Additional 0.5hg to trigger reset */
+    --scroll-threshold-return: calc(var(--hg) * 0.7);  /* 0.7hg scroll-up from top to return home */
 }
 
 /* Reset and base styles */
