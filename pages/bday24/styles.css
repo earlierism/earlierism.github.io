@@ -1,0 +1,77 @@
+:root {
+  --frame-width: 1200;
+  --frame-height: 1588;
+  --frame-max: 430px;
+  --page-pad: 0px;
+  background: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #ffffff;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.page {
+  width: 100vw;
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+}
+
+.scrubber {
+  width: min(
+    100vw,
+    var(--frame-max),
+    calc(100dvh * var(--frame-width) / var(--frame-height))
+  );
+  aspect-ratio: var(--frame-width) / var(--frame-height);
+  line-height: 0;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: grab;
+}
+
+.scrubber:active {
+  cursor: grabbing;
+}
+
+.scrubber:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 4px;
+}
+
+.scrubber img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+@media (max-width: 430px) {
+  .scrubber {
+    width: min(100vw, calc(100dvh * var(--frame-width) / var(--frame-height)));
+  }
+}
+
+body.is-desktop-view {
+  --frame-max: 680px;
+}
