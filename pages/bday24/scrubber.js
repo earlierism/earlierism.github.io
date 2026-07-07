@@ -1,5 +1,6 @@
 const FPS = 60;
-const TOTAL_FRAMES = 346;
+const FIRST_FRAME = 35;
+const LAST_FRAME = 260;
 const MOBILE_FRAME_PATH = "bday-clip-v2-frames";
 const DESKTOP_FRAME_PATH = "bday-clip-v2-frames-large";
 const DESKTOP_MEDIA_QUERY = "(min-width: 760px) and (min-height: 720px)";
@@ -52,7 +53,7 @@ function frameSrc(frame) {
 }
 
 function showFrame(frame, force = false) {
-  const nextFrame = Math.round(Math.min(TOTAL_FRAMES, Math.max(1, frame)));
+  const nextFrame = Math.round(Math.min(LAST_FRAME, Math.max(FIRST_FRAME, frame)));
   if (!force && nextFrame === state.frame) return;
   state.frame = nextFrame;
   frameEl.src = frameSrc(nextFrame);
@@ -309,7 +310,7 @@ scrubber.addEventListener("keydown", (event) => {
   });
 });
 
-for (let i = 1; i <= TOTAL_FRAMES; i += 1) {
+for (let i = FIRST_FRAME; i <= LAST_FRAME; i += 1) {
   const image = new Image();
   image.src = frameSrc(i);
 }
