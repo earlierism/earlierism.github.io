@@ -46,10 +46,16 @@ body {
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
-  cursor: grab;
+  cursor: progress;
+  pointer-events: none;
 }
 
-.scrubber:active {
+body.is-loaded .scrubber {
+  cursor: grab;
+  pointer-events: auto;
+}
+
+body.is-loaded .scrubber:active {
   cursor: grabbing;
 }
 

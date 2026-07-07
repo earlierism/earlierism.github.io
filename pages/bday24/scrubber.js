@@ -33,7 +33,7 @@ const frameEl = document.querySelector("#frame");
 
 const state = {
   restingSide: "A",
-  mode: "resting",
+  mode: "loading",
   frame: ANCHOR.A,
   autoPhase: "",
   dragPointerId: null,
@@ -50,6 +50,37 @@ const state = {
 
 function frameSrc(frame) {
   return `${FRAME_PATH}/frame_${String(frame).padStart(4, "0")}.jpg`;
+}
+
+function loadFrame(frame) {
+  return new Promise((resolve) => {
+    const image = new Image();
+
+    image.onload = async () => {
+      if (image.decode) {
+        try {
+          await image.decode();
+        } catch {
+          // The image is already loaded; decode can fail on some Safari versions.
+        }
+      }
+
+      resolve();
+    };
+
+    image.onerror = resolve;
+    image.src = frameSrc(frame);
+  });
+}
+
+function preloadFrames() {
+  const loads = [];
+
+  for (let i = FIRST_FRAME; i <= LAST_FRAME; i += 1) {
+    loads.push(loadFrame(i));
+  }
+
+  return Promise.all(loads);
 }
 
 function showFrame(frame, force = false) {
@@ -310,9 +341,9 @@ scrubber.addEventListener("keydown", (event) => {
   });
 });
 
-for (let i = FIRST_FRAME; i <= LAST_FRAME; i += 1) {
-  const image = new Image();
-  image.src = frameSrc(i);
-}
-
 showFrame(ANCHOR.A, true);
+
+preloadFrames().then(() => {
+  state.mode = "resting";
+  document.body.classList.add("is-loaded");
+});
