@@ -50,16 +50,16 @@ const state = {
 
 const loadState = {
   entryReady: false,
-  scrubReady: false,
   releaseReady: false,
-  scrubReadyPromise: null,
+  interactionReady: false,
+  interactionReadyPromise: null,
   releaseReadyPromise: null,
-  resolveScrubReady: null,
+  resolveInteractionReady: null,
   resolveReleaseReady: null,
 };
 
-loadState.scrubReadyPromise = new Promise((resolve) => {
-  loadState.resolveScrubReady = resolve;
+loadState.interactionReadyPromise = new Promise((resolve) => {
+  loadState.resolveInteractionReady = resolve;
 });
 
 loadState.releaseReadyPromise = new Promise((resolve) => {
@@ -223,9 +223,9 @@ async function beginInteraction(clientX, pointerId) {
     return true;
   }
 
-  if (!loadState.scrubReady) {
+  if (!loadState.interactionReady) {
     state.mode = "waitingForScrub";
-    await loadState.scrubReadyPromise;
+    await loadState.interactionReadyPromise;
 
     if (!state.isPointerDown) {
       await cancelToRest();
@@ -268,10 +268,6 @@ async function completeToRest(nextRestingSide) {
 
   if (nextRestingSide === "D") {
     if (!await playSegment(state.frame, ANCHOR.C, "snapToC")) return;
-    if (!loadState.releaseReady) {
-      state.mode = "waitingForRelease";
-      await loadState.releaseReadyPromise;
-    }
     if (!await playSegment(ANCHOR.C, ANCHOR.D, "releaseToD")) return;
     state.restingSide = "D";
     state.mode = "resting";
@@ -380,10 +376,9 @@ preloadRange(ANCHOR.A, ANCHOR.B).then(async () => {
   document.body.classList.add("is-loaded");
 
   await preloadRange(ANCHOR.B + 1, ANCHOR.C);
-  loadState.scrubReady = true;
-  loadState.resolveScrubReady();
-
   await preloadRange(ANCHOR.C + 1, ANCHOR.D);
   loadState.releaseReady = true;
   loadState.resolveReleaseReady();
+  loadState.interactionReady = true;
+  loadState.resolveInteractionReady();
 });
