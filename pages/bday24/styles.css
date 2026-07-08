@@ -33,12 +33,19 @@ body {
   background: #ffffff;
 }
 
-.scrubber {
+.stage {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
   width: min(
     calc(100vw - var(--viewport-gutter-x) * 2),
     var(--frame-max),
-    calc((100dvh - var(--viewport-gutter-y) * 2) * var(--frame-width) / var(--frame-height))
+    calc((100dvh - var(--viewport-gutter-y) * 2 - 34px) * var(--frame-width) / var(--frame-height))
   );
+}
+
+.scrubber {
+  width: 100%;
   aspect-ratio: var(--frame-width) / var(--frame-height);
   line-height: 0;
   overflow: hidden;
@@ -74,11 +81,46 @@ body.is-loaded .scrubber:active {
   -webkit-user-drag: none;
 }
 
+.loader {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 34px;
+  align-items: center;
+  gap: 10px;
+  transition: opacity 180ms ease;
+}
+
+.loader-track {
+  height: 2px;
+  overflow: hidden;
+  background: #dddddd;
+}
+
+.loader-bar {
+  width: 0%;
+  height: 100%;
+  background: #111111;
+  transition: width 120ms linear;
+}
+
+.loader-text {
+  color: #111111;
+  font-size: 11px;
+  line-height: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+body.is-loaded .loader {
+  opacity: 0;
+  pointer-events: none;
+}
+
 @media (max-width: 430px) {
-  .scrubber {
+  .stage {
     width: min(
       calc(100vw - var(--viewport-gutter-x) * 2),
-      calc((100dvh - var(--viewport-gutter-y) * 2) * var(--frame-width) / var(--frame-height))
+      calc((100dvh - var(--viewport-gutter-y) * 2 - 34px) * var(--frame-width) / var(--frame-height))
     );
   }
 }

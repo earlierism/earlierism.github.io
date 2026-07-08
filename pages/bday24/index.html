@@ -20,10 +20,18 @@
 </head>
 <body>
   <main class="page">
-    <div class="scrubber" id="scrubber" aria-label="Birthday card flip" role="button" tabindex="0">
-      <img id="frame" src="bday-clip-v2-frames-1200/frame_0035.jpg" alt="">
+    <div class="stage">
+      <div class="scrubber" id="scrubber" aria-label="Birthday card flip" role="button" tabindex="0">
+        <img id="frame" src="bday-clip-v2-frames-1200/frame_0035.jpg" alt="">
+      </div>
+      <div class="loader" id="loader" aria-live="polite">
+        <div class="loader-track">
+          <div class="loader-bar" id="loader-bar"></div>
+        </div>
+        <div class="loader-text" id="loader-text">0%</div>
+      </div>
     </div>
   </main>
-  <script src="scrubber.js?v=3baa5c3"></script>
+  <script src="scrubber.js?v=frame-loader-30fps-1"></script>
 </body>
 </html>
