@@ -1,6 +1,7 @@
 const FPS = 60;
 const FIRST_FRAME = 35;
 const LAST_FRAME = 260;
+const DISPLAY_FRAME_STEP = 2;
 const MOBILE_FRAME_PATH = "bday-clip-v2-frames-1200";
 const DESKTOP_FRAME_PATH = "bday-clip-v2-frames-large";
 const DESKTOP_MEDIA_QUERY = "(min-width: 760px) and (min-height: 720px)";
@@ -25,11 +26,15 @@ const THRESHOLD = {
   backwardCommit: 138,
 };
 
+const DISPLAY_FRAMES = buildDisplayFrames();
+
 const SCRUB_SMOOTHING = 0.24;
 const SCRUB_DISTANCE_RATIO = 0.82;
 
 const scrubber = document.querySelector("#scrubber");
 const frameEl = document.querySelector("#frame");
+const loaderBar = document.querySelector("#loader-bar");
+const loaderText = document.querySelector("#loader-text");
 
 const state = {
   restingSide: "A",
@@ -66,8 +71,62 @@ loadState.releaseReadyPromise = new Promise((resolve) => {
   loadState.resolveReleaseReady = resolve;
 });
 
+function updateLoader(progress) {
+  const percent = Math.round(clamp(progress, 0, 1) * 100);
+  loaderBar.style.width = `${percent}%`;
+  loaderText.textContent = `${percent}%`;
+}
+
 function frameSrc(frame) {
   return `${FRAME_PATH}/frame_${String(frame).padStart(4, "0")}.jpg`;
+}
+
+function buildDisplayFrames() {
+  const requiredFrames = new Set([
+    ...Object.values(ANCHOR),
+    ...Object.values(THRESHOLD),
+  ]);
+  const frames = [];
+
+  for (let frame = FIRST_FRAME; frame <= LAST_FRAME; frame += DISPLAY_FRAME_STEP) {
+    frames.push(frame);
+  }
+
+  requiredFrames.forEach((frame) => {
+    if (frame >= FIRST_FRAME && frame <= LAST_FRAME) {
+      frames.push(frame);
+    }
+  });
+
+  return [...new Set(frames)].sort((a, b) => a - b);
+}
+
+function nearestDisplayFrame(frame) {
+  const requestedFrame = Math.round(Math.min(LAST_FRAME, Math.max(FIRST_FRAME, frame)));
+
+  if (DISPLAY_FRAMES.includes(requestedFrame)) {
+    return requestedFrame;
+  }
+
+  let low = 0;
+  let high = DISPLAY_FRAMES.length - 1;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+
+    if (DISPLAY_FRAMES[mid] < requestedFrame) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  const previousFrame = DISPLAY_FRAMES[Math.max(0, high)];
+  const nextFrame = DISPLAY_FRAMES[Math.min(DISPLAY_FRAMES.length - 1, low)];
+
+  return requestedFrame - previousFrame <= nextFrame - requestedFrame
+    ? previousFrame
+    : nextFrame;
 }
 
 function loadFrame(frame) {
@@ -91,17 +150,21 @@ function loadFrame(frame) {
   });
 }
 
-async function preloadRange(from, to) {
-  const start = Math.min(from, to);
-  const end = Math.max(from, to);
+async function preloadFrames() {
+  const totalFrames = DISPLAY_FRAMES.length;
+  let loadedFrames = 0;
 
-  for (let i = start; i <= end; i += 1) {
-    await loadFrame(i);
+  updateLoader(0);
+
+  for (const frame of DISPLAY_FRAMES) {
+    await loadFrame(frame);
+    loadedFrames += 1;
+    updateLoader(loadedFrames / totalFrames);
   }
 }
 
 function showFrame(frame, force = false) {
-  const nextFrame = Math.round(Math.min(LAST_FRAME, Math.max(FIRST_FRAME, frame)));
+  const nextFrame = nearestDisplayFrame(frame);
   if (!force && nextFrame === state.frame) return;
   state.frame = nextFrame;
   frameEl.src = frameSrc(nextFrame);
@@ -370,15 +433,15 @@ scrubber.addEventListener("keydown", (event) => {
 
 showFrame(ANCHOR.A, true);
 
-preloadRange(ANCHOR.A, ANCHOR.B).then(async () => {
+preloadFrames().then(() => {
   loadState.entryReady = true;
+  loadState.releaseReady = true;
+  loadState.interactionReady = true;
   state.mode = "resting";
   document.body.classList.add("is-loaded");
-
-  await preloadRange(ANCHOR.B + 1, ANCHOR.C);
-  await preloadRange(ANCHOR.C + 1, ANCHOR.D);
-  loadState.releaseReady = true;
   loadState.resolveReleaseReady();
-  loadState.interactionReady = true;
   loadState.resolveInteractionReady();
+}).catch((error) => {
+  console.error(error);
+  loaderText.textContent = "error";
 });
