@@ -48,6 +48,24 @@ const state = {
   playToken: 0,
 };
 
+const loadState = {
+  entryReady: false,
+  scrubReady: false,
+  releaseReady: false,
+  scrubReadyPromise: null,
+  releaseReadyPromise: null,
+  resolveScrubReady: null,
+  resolveReleaseReady: null,
+};
+
+loadState.scrubReadyPromise = new Promise((resolve) => {
+  loadState.resolveScrubReady = resolve;
+});
+
+loadState.releaseReadyPromise = new Promise((resolve) => {
+  loadState.resolveReleaseReady = resolve;
+});
+
 function frameSrc(frame) {
   return `${FRAME_PATH}/frame_${String(frame).padStart(4, "0")}.jpg`;
 }
@@ -57,7 +75,7 @@ function loadFrame(frame) {
     const image = new Image();
 
     image.onload = async () => {
-      if (image.decode) {
+      if (image.decode && !USE_DESKTOP_FRAMES) {
         try {
           await image.decode();
         } catch {
@@ -73,14 +91,13 @@ function loadFrame(frame) {
   });
 }
 
-function preloadFrames() {
-  const loads = [];
+async function preloadRange(from, to) {
+  const start = Math.min(from, to);
+  const end = Math.max(from, to);
 
-  for (let i = FIRST_FRAME; i <= LAST_FRAME; i += 1) {
-    loads.push(loadFrame(i));
+  for (let i = start; i <= end; i += 1) {
+    await loadFrame(i);
   }
-
-  return Promise.all(loads);
 }
 
 function showFrame(frame, force = false) {
@@ -206,6 +223,16 @@ async function beginInteraction(clientX, pointerId) {
     return true;
   }
 
+  if (!loadState.scrubReady) {
+    state.mode = "waitingForScrub";
+    await loadState.scrubReadyPromise;
+
+    if (!state.isPointerDown) {
+      await cancelToRest();
+      return true;
+    }
+  }
+
   beginScrub();
   return true;
 }
@@ -241,6 +268,10 @@ async function completeToRest(nextRestingSide) {
 
   if (nextRestingSide === "D") {
     if (!await playSegment(state.frame, ANCHOR.C, "snapToC")) return;
+    if (!loadState.releaseReady) {
+      state.mode = "waitingForRelease";
+      await loadState.releaseReadyPromise;
+    }
     if (!await playSegment(ANCHOR.C, ANCHOR.D, "releaseToD")) return;
     state.restingSide = "D";
     state.mode = "resting";
@@ -343,7 +374,16 @@ scrubber.addEventListener("keydown", (event) => {
 
 showFrame(ANCHOR.A, true);
 
-preloadFrames().then(() => {
+preloadRange(ANCHOR.A, ANCHOR.B).then(async () => {
+  loadState.entryReady = true;
   state.mode = "resting";
   document.body.classList.add("is-loaded");
+
+  await preloadRange(ANCHOR.B + 1, ANCHOR.C);
+  loadState.scrubReady = true;
+  loadState.resolveScrubReady();
+
+  await preloadRange(ANCHOR.C + 1, ANCHOR.D);
+  loadState.releaseReady = true;
+  loadState.resolveReleaseReady();
 });
